@@ -405,7 +405,7 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 					venderData.password = req.body.password;
 					venderData.store_name = req.body.storename;
 					venderData.vender_name = req.body.vendername;
-					venderData.icons_image = clientUrl +'/'+ correctedPath;
+					venderData.icons_image = clientUrl + correctedPath;
 					venderData.role = '1';
 					venderData.created_at = moment().format("ll"); 
 					
