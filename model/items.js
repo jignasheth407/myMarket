@@ -6,6 +6,10 @@ const ItemsSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    category_name: {
+        type: String, 
+        required: false
+    },
     product_name: {
         type: String, 
         required: false

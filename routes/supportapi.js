@@ -338,9 +338,14 @@ router.post('/addProduct', async (req, res) => {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id cannot be blank" });
 		return;
 	}
+	if (req.body.category_name == undefined || req.body.category_name == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
+		return;
+	}
  	try {
 		let productDetails = new itemsSchema({
 			category_id : req.body.category_id,
+			category_name: req.body.category_name,
 			product_name : req.body.product_name,
 			price : req.body.price,
 			base64_image : req.body.base64_image,
@@ -414,7 +419,6 @@ router.post('/categoryByProduct', async (req, res) => {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id can not be blank" });
 		return;
 	}
-
 	const product = await itemsSchema.find({category_id: req.body.category_id });
 
 	if (product != undefined && product.length > 0) {
@@ -434,6 +438,10 @@ router.post('/selectProduct', async (req, res) => {
         res.status(400).json({ error_msg: "customer_id not found." })
         return;
 	}
+	// if (req.body.vender_id == undefined || req.body.vender_id == null) {
+    //     res.status(400).json({ error_msg: "vender_id not found." })
+    //     return;
+	// }
 	if (req.body.phone_number == undefined || req.body.phone_number == null) {
         res.status(400).json({ error_msg: "phone_number not found." })
         return;
@@ -472,12 +480,18 @@ router.post('/selectProduct', async (req, res) => {
 	})
 });
 
-router.post('orderList', )
+router.post('orderList', async (req, res) => {
+
+
+});
 
 router.post('/sendSMSLink', async (req, res) => {
+	var number = req.body.mobile_number; 
+	console.log(number);
 	var link = 'http://sms.hspsms.com';
 	var smsMessage = "Welcome to MyMarket Application! Please click your link download APP: " + link + ", Thank you!";
 
+	var sendSMS = "http://103.10.234.154/vendorsms/pushsms.aspx?user=bharat.chhabra&password=bharat@123&msisdn=919898xxxxxx&sid=SenderId&msg=test%20message&fl=0";
 	var otpUrl = "http://sms.hspsms.com/sendSMS?username="+ smsconfig.username +"&message=" + encodeURI(smsMessage) + "&sendername=" + smsconfig.sendersName + "&smstype=" + smsconfig.smsType + "&numbers=" + user.mobile_number + "&apikey=" + smsconfig.apiKey;
 
 });
