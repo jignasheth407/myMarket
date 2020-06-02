@@ -454,7 +454,8 @@ router.post('/selectProduct', async (req, res) => {
 		})
 	}
 	Order.collection.insert(products, function(err, result){
-		if(err){
+		if(err)
+		{
 			console.error(err);
 			res.status(400).json({success : false, msg : "product not select"});
 		    return;
