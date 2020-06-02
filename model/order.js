@@ -18,6 +18,10 @@ const OrderSchema = new Schema({
         type: String,
         required: false,
     },
+    quantity: {
+        type: String,
+        required: false,
+    },
     phone: {
         type: String, 
         required: false

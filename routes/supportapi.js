@@ -205,6 +205,8 @@ router.post("/registerCustomer", async (req, res) => {
 	}
 });
 
+// router.post('updateShippingAddresses')
+
 /* login API Functionality */
 router.post("/login", async (req, res) => {
 	if (req.body.phone == undefined || req.body.phone == null) {
@@ -446,6 +448,7 @@ router.post('/selectProduct', async (req, res) => {
 			address: req.body.address,
 			phone:req.body.phone_number,
 			category: product[i].category,
+			quantity: product[i].quantity,
 			customer_id: req.body.customer_id,
 			product_name: product[i].product_name,
 		})
@@ -467,6 +470,17 @@ router.post('/selectProduct', async (req, res) => {
 		}
 	})
 });
+
+router.post('orderList', )
+
+router.post('/sendSMSLink', async (req, res) => {
+	var link = 'http://sms.hspsms.com';
+	var smsMessage = "Welcome to MyMarket Application! Please click your link download APP: " + link + ", Thank you!";
+
+	var otpUrl = "http://sms.hspsms.com/sendSMS?username="+ smsconfig.username +"&message=" + encodeURI(smsMessage) + "&sendername=" + smsconfig.sendersName + "&smstype=" + smsconfig.smsType + "&numbers=" + user.mobile_number + "&apikey=" + smsconfig.apiKey;
+
+});
+
 
 /* testing API */
 router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
