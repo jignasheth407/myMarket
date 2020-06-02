@@ -50,6 +50,9 @@ const Users = mongoose.model("Users")
 const itemsSchema = mongoose.model("Items")
 const categorySchema = mongoose.model("Category")
 const Vender = mongoose.model("Vender")
+const Customer = mongoose.model("Customer")
+const Order = mongoose.model("Order")
+
 const clientUrl = process.env.clientUrl;
 
 /* register API Functionality */
@@ -137,6 +140,68 @@ router.post("/registerUser", async (req, res) => {
 	else {
 		res.json({ status: false, msg: "Password and confirm password must be same!!" });
 		return;
+	}
+});
+
+/* register API Functionality */
+router.post("/registerCustomer", async (req, res) => {
+	if (req.body.customer_name == undefined || req.body.customer_name == null) {
+		res.json({ error_msg: "customer_name cannot be blank" });
+		return;
+	}
+	if (req.body.phone == undefined || req.body.phone == null) {
+		res.json({ error_msg: "phone cannot be blank" });
+		return;
+	}
+	if (req.body.address == undefined || req.body.address == null) {
+		res.json({ error_msg: "address cannot be blank" });
+		return;
+	}
+
+	var phone = req.body.phone;
+
+	const checkPhone = await Customer.find({ "phone": phone });
+	if (checkPhone.length > 0) {
+		res.json({ status: false, msg: "this user already exists!" });
+		return;
+	}
+	if (phone.length!=10) {
+		res.json({ status: false, msg: "phone number must be enter 10 characters" });
+		return;
+	}
+	if(isNaN(phone)||phone.indexOf(" ")!=-1) {
+		res.json({ status: false, msg: "Enter numeric value" });
+        return false; 
+    }
+	try
+	{
+		customerData = new Customer({
+			role : 2,
+			city : req.body.city,
+			phone: req.body.phone,
+			address: req.body.address,
+			customer_name: req.body.customer_name,
+			created_at : moment().format("ll")
+		});
+		customerData.save()
+		.then(result =>{
+			console.log(result);
+			res.status(201).json({
+				msg: "customer registered successfully",
+				customerInfo: {
+					_id: result._id,
+					name: result.customer_name,
+					phone: result.phone,
+					city: result.city,
+				}
+			})
+		})
+	}
+	catch (error) {
+		console.log(error);
+		res.json({ error_msg: "Something went wrong" });
+		return;
+
 	}
 });
 
@@ -361,7 +426,49 @@ router.post('/categoryByProduct', async (req, res) => {
 	}
 });
 
+/* select Product API */
+router.post('/selectProduct', async (req, res) => {
+	if (req.body.customer_id == undefined || req.body.customer_id == null) {
+        res.status(400).json({ error_msg: "customer_id not found." })
+        return;
+	}
+	if (req.body.phone_number == undefined || req.body.phone_number == null) {
+        res.status(400).json({ error_msg: "phone_number not found." })
+        return;
+	}
+	
+	var products = [];
+	var product = req.body.select_product;
 
+	for (var i = 0; i < product.length; i++) {
+		products.push({
+			price: product[i].price,
+			address: req.body.address,
+			phone:req.body.phone_number,
+			category: product[i].category,
+			customer_id: req.body.customer_id,
+			product_name: product[i].product_name,
+		})
+	}
+	Order.collection.insert(products, function(err, result){
+		if(err){
+			console.error(err);
+			res.status(400).json({success : false, msg : "product not select"});
+		    return;
+		}
+		else
+		{
+			res.status(HttpStatus.CREATED).json({ success: true,
+				msg: "order successfully placed",
+				Count: result.insertedCount,
+				Order: result.ops
+			});
+			return;
+		}
+	})
+});
+
+/* testing API */
 router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
 	var correctedPath = path.normalize(req.file.path);
 	correctedPath = correctedPath.replace(new RegExp(/\\/g),"/");

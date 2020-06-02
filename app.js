@@ -20,7 +20,8 @@ require("./model/user_groups");
 require("./model/items");
 require("./model/category");
 require("./model/vender");
-
+require("./model/customer");
+require("./model/order");
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
