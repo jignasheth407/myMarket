@@ -46,3 +46,4 @@
   }
   .primary_header{padding:0;}
   .primary_header a.navbar-brand img{width:160px;height:50px;object-fit: cover;}
+  .product_section .prdct_image{min-height: 283px;}

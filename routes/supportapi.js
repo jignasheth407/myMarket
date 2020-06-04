@@ -205,8 +205,6 @@ router.post("/registerCustomer", async (req, res) => {
 	}
 });
 
-// router.post('updateShippingAddresses')
-
 /* login API Functionality */
 router.post("/login", async (req, res) => {
 	if (req.body.phone == undefined || req.body.phone == null) {
@@ -241,7 +239,7 @@ router.post("/login", async (req, res) => {
 				store_name: userDetails[0].store_name,
 				phone: userDetails[0].phone,
 				email: userDetails[0].email,
-				_id: userDetails[0]._id,
+				vender_id: userDetails[0]._id,
 			} 
 		});
 			return;
@@ -330,6 +328,10 @@ router.post('/deleteCategory', async (req, res) => {
 
 /* add Product API */
 router.post('/addProduct', async (req, res) => {
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+		return;
+	}
 	if (req.body.product_name == undefined || req.body.product_name == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "product_name cannot be blank" });
 		return;
@@ -342,14 +344,17 @@ router.post('/addProduct', async (req, res) => {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
 		return;
 	}
- 	try {
+	try
+	{
 		let productDetails = new itemsSchema({
-			category_id : req.body.category_id,
+			vender_id: req.body.vender_id,
+			category_id: req.body.category_id,
 			category_name: req.body.category_name,
-			product_name : req.body.product_name,
-			price : req.body.price,
-			base64_image : req.body.base64_image,
-			created_at : moment().format("ll")
+			product_name: req.body.product_name,
+			price: req.body.price,
+			base64_image: req.body.base64_image,
+			created_at: moment().format("ll"),
+			status: false
 		})
 		productDetails.save(function(error, created){
 			if(error)
@@ -375,8 +380,9 @@ router.post('/addProduct', async (req, res) => {
 /* usersList API */
 router.get('/productList', async (req, res) => {
 	let data = await itemsSchema.find({});
+	//let vender = await Vender.find();
 	if (data != undefined && data.length > 0) {
-		res.status(HttpStatus.OK).json({ success: true, msg: 'product list', data });
+		res.status(HttpStatus.OK).json({ success: true, msg: 'product list', data});
 		return;
 	}
 	else {
@@ -419,6 +425,7 @@ router.post('/categoryByProduct', async (req, res) => {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id can not be blank" });
 		return;
 	}
+
 	const product = await itemsSchema.find({category_id: req.body.category_id });
 
 	if (product != undefined && product.length > 0) {
@@ -438,14 +445,15 @@ router.post('/selectProduct', async (req, res) => {
         res.status(400).json({ error_msg: "customer_id not found." })
         return;
 	}
-	// if (req.body.vender_id == undefined || req.body.vender_id == null) {
-    //     res.status(400).json({ error_msg: "vender_id not found." })
-    //     return;
-	// }
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(400).json({ error_msg: "vender_id not found." })
+        return;
+	}
 	if (req.body.phone_number == undefined || req.body.phone_number == null) {
         res.status(400).json({ error_msg: "phone_number not found." })
         return;
 	}
+	
 	
 	var products = [];
 	var product = req.body.select_product;
@@ -455,8 +463,9 @@ router.post('/selectProduct', async (req, res) => {
 			price: product[i].price,
 			address: req.body.address,
 			phone:req.body.phone_number,
-			category: product[i].category,
 			quantity: product[i].quantity,
+			category: product[i].category,
+			vender_id: req.body.vender_id,
 			customer_id: req.body.customer_id,
 			product_name: product[i].product_name,
 		})
@@ -471,7 +480,7 @@ router.post('/selectProduct', async (req, res) => {
 		else
 		{
 			res.status(HttpStatus.CREATED).json({ success: true,
-				msg: "order successfully placed",
+				msg: "your order has been placed successfully",
 				Count: result.insertedCount,
 				Order: result.ops
 			});
@@ -480,24 +489,47 @@ router.post('/selectProduct', async (req, res) => {
 	})
 });
 
-router.post('orderList', async (req, res) => {
+/* customer List API */
+router.get('/customerList', async (req, res) => {
+	let data = await Customer.find({});
+	if (data != undefined && data.length > 0) {
+		res.status(HttpStatus.OK).json({ success: true, customer_list : data});
+		return;
+	}
+	else {
+		res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: 'no Customer found.', data });
+		return;
 
-
+	}
 });
 
-router.post('/sendSMSLink', async (req, res) => {
-	var number = req.body.mobile_number; 
-	console.log(number);
-	var link = 'http://sms.hspsms.com';
-	var smsMessage = "Welcome to MyMarket Application! Please click your link download APP: " + link + ", Thank you!";
+/* send order List to vender API */
+// router.post('')
 
-	var sendSMS = "http://103.10.234.154/vendorsms/pushsms.aspx?user=bharat.chhabra&password=bharat@123&msisdn=919898xxxxxx&sid=SenderId&msg=test%20message&fl=0";
-	var otpUrl = "http://sms.hspsms.com/sendSMS?username="+ smsconfig.username +"&message=" + encodeURI(smsMessage) + "&sendername=" + smsconfig.sendersName + "&smstype=" + smsconfig.smsType + "&numbers=" + user.mobile_number + "&apikey=" + smsconfig.apiKey;
 
+
+
+router.post('/orderList', async (req, res) => {
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
+		return;
+	}
+
+	const orderlist = await Order.find({vender_id: req.body.vender_id });
+
+	if (orderlist != undefined && orderlist.length > 0) {
+		res.status(HttpStatus.OK).json({ success: true,  orderlist });
+		return;
+	}
+	else
+	{
+		res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: 'order not found.', orderlist });
+		return;
+	}
 });
 
 
-/* testing API */
+
 router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
 	var correctedPath = path.normalize(req.file.path);
 	correctedPath = correctedPath.replace(new RegExp(/\\/g),"/");
@@ -533,6 +565,28 @@ router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
 		});
 	});
 });
+
+
+router.post('/sendSMSLink', async (req, res) => {
+	var number = req.body.mobile_number; 
+	console.log(number);
+	smsData = new SMS({
+		vender_id: req.body.vender_id,
+		mobile_number: req.body.mobile_number,
+		created_at : moment().format("ll")
+	});
+	smsData.save().then(result => {
+		console.log(result);
+		
+
+	})
+
+
+	
+
+
+});
+
 
 
 

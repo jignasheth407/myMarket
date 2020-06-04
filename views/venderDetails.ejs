@@ -1,0 +1,86 @@
+<% include templates/header.ejs %>
+<% include templates/sidebar.ejs %>
+<div class="card mb-3">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-10">
+                <i class="fas fa-product-hunt"></i> All Product Details
+            </div>
+            <div class="col-md-2">
+                <a href="/vender" class="btn btn-info btn-block" title="User">Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card-body">
+    <div class="table-responsive">
+        <table class="table" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th> image</th>
+                    <th> category </th>
+                    <th> product </th>
+                    <th> price</th>
+                    <th> Action </th>
+                </tr>
+            </thead>
+            <tfoot>
+                <th> image</th>
+                <th> category </th>
+                <th> product </th>
+                <th> price</th>
+                <th> Action </th>
+            </tfoot>
+            <tbody>
+                <%
+                  if(product_arr != '')
+                  {
+                    for(var i=0; i < product_arr.length; i++) {
+                      %>
+                        <tr>
+                            <td> <img src="<%= product_arr[i].base64_image %>" width="100px" height="auto"></img> </td>
+                            <td> <%= product_arr[i].category_name %> </td>
+                            <td> <%= product_arr[i].product_name %> </td>
+                            <td> <%= product_arr[i].price %> </td>
+                            <td>
+                                <!-- <a href="/editProduct/<%= product_arr[i]._id %>"> <i class="fas fa-edit text-info"></i> </a> -->
+                                <i class="fas fa-trash text-danger" onClick="removeDetails('removeProduct','<%= product_arr[i]._id %>')" style="cursor:pointer"></i>
+                            </td>
+                        </tr>
+                      <%	
+                    }
+                  }
+                %>
+              </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- <div class="col-md-12 product_section">
+    <div class="row clearfix">
+        <%
+            if(product_arr != '')
+            {
+                for(var i=0; i < product_arr.length; i++)
+                {
+                    %>
+                        <div class="col-md-3 mb-3">
+                            <div class="card ">
+                                <img class="card-img-top prdct_image" src="<%= product_arr[i].base64_image %>" alt="Card image cap" class="img-fluid">
+                                <div class="card-body p-3 text-white bg-secondary">
+                                    <h6 class="card-title"><%= product_arr[i].category_name %> <span class="float-right"><i class="fas fa-trash text-danger" style="cursor:pointer"></i></span></h6>
+                                    <h6 class="card-title"><%= product_arr[i].product_name %> <span class="float-right">
+                                        &#8377; <%= product_arr[i].price %> 
+                                    </span></h6>
+                                </div>
+                            </div>
+                        </div>
+                    <%	
+                }
+            }
+        %>
+    </div>
+</div> -->
+
+<% include templates/footer.ejs %>

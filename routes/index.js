@@ -32,6 +32,8 @@ const Users = mongoose.model("Users")
 const Forgotpass = mongoose.model("Forgotpass")
 const userGroupModel = mongoose.model("User_group")
 const Vender = mongoose.model("Vender")
+const Order = mongoose.model("Order")
+const Items = mongoose.model("Items")
 
 /* SET STORAGE MULTER*/ 
 var storage = multer.diskStorage({
@@ -405,7 +407,7 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 					venderData.password = req.body.password;
 					venderData.store_name = req.body.storename;
 					venderData.vender_name = req.body.vendername;
-					venderData.icons_image = clientUrl + correctedPath;
+					venderData.icons_image = clientUrl +'/'+ correctedPath;
 					venderData.role = '1';
 					venderData.created_at = moment().format("ll"); 
 					
@@ -414,7 +416,7 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 						req.flash('text_msg', 'Vender created successfully');
 						res.redirect("/vender");
 					})
-					
+
 					// req.flash('type', 'Success');
 					// req.flash('text_msg', 'Vender created successfully');
 					// res.redirect("/vender");
@@ -486,8 +488,85 @@ router.delete('/removeVender/:postId', async (req, res) => {
 		}
 		res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'adminaccess'});
 	}
-})
+});
 
+
+/* vender Details functionaliy. */
+router.get("/venderDetails/:postId", async (req, res) => {
+	var admin_name = req.session.admin_name;
+	var emailId = req.session.emailId;
+	if(emailId)
+	{
+		try
+		{
+			let product_arr = await Items.find({vender_id: req.params.postId});
+			if(product_arr != '')
+			{
+				var notification_arr = {
+					'type': req.flash('type'),
+					'text_msg': req.flash('text_msg')
+				}
+				res.render('venderDetails', { title: 'Vender Details', menuId: 'vender', msg: notification_arr, adminname: admin_name, product_arr: product_arr });
+			}
+			else
+			{
+				var notification_arr = {
+					'type': 'Error',
+					'text_msg': 'User details not found'
+				}
+				res.render('venderDetails', { title: 'Vender Details', menuId: 'vender', msg: notification_arr, adminname: admin_name, product_arr: product_arr });
+			}
+		}
+		catch(error)
+		{
+			var notification_arr = {
+				'type': 'Error',
+				'text_msg': error
+			}
+			res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'vender'});
+		}
+	}
+	else
+	{
+		var notification_arr = {
+			'type': 'Warning',
+			'text_msg': 'Your are not logged In!'
+		}
+		res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'vender'});
+	}
+});
+
+/* Delete Schema for Boats responce */
+router.delete('/removeProduct/:postId', async (req, res) => {
+	var admin_name = req.session.admin_name;
+	var emailId = req.session.emailId;
+	if(emailId)
+	{
+		try
+		{
+			const post = await Items.findByIdAndRemove({_id: req.params.postId}, function(err){
+				if(err)
+				{
+					console.log(err);
+					res.status.json({ err: err });
+				}
+				res.json({ success: true });
+			});
+		}
+		catch(e)
+		{
+			res.send(500)
+		}
+	}
+	else
+	{
+		var notification_arr = {
+			'type': 'Warning',
+			'text_msg': 'Your are not logged In!'
+		}
+		res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'automobile'});
+	}
+});
 
 
 

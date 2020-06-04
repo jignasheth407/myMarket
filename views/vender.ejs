@@ -25,23 +25,25 @@
                 <table class="table" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th> Icon </th>
+                            <th> Logo </th>
                             <th> Shop name </th>
                             <th> Name</th>
                             <th> Email</th>
                             <th> Phone</th>
                             <th> Password</th>
+                            <th width="10%">Details</th>
                             <th> Action </th>
                         </tr>
                       </thead>
                       <tfoot>
                         <tr>
-                            <th> Icon </th>
+                            <th> Logo </th>
                             <th> Shop name </th>
                             <th> Name</th>
                             <th> Email</th>
                             <th> Phone</th>
                             <th> Password</th>
+                            <th width="10%">Details</th>
                             <th> Action </th>
                         </tr>
                       </tfoot>
@@ -52,14 +54,16 @@
                             for(var i=0; i < venderData.length; i++) {
                               %>
                                 <tr>
-                                  <td> <img src="/uploads/<%= venderData[i].icons_image %>" width="100px" height="auto"></img> </td>
+                                  <!-- <td> <img src="/uploads/<%= venderData[i].icons_image %>" width="100px" height="auto"></img> </td> -->
+                                  <td> <img src="<%= venderData[i].icons_image %>" width="50px" height="auto"></img> </td>
                                   <td> <%= venderData[i].store_name %> </td>
                                   <td> <%= venderData[i].vender_name %> </td>
                                   <td> <%= venderData[i].email %> </td>
                                   <td> <%= venderData[i].phone %> </td>
                                   <td> <%= venderData[i].password %> </td>
+                                  <td> <a href="/venderDetails/<%= venderData[i]._id %>">Details</a> </td>
                                   <td>
-                                    <a href="/editVender/<%= venderData[i]._id %>"> <i class="fas fa-edit text-info"></i> </a>
+                                    <!-- <a href="/editVender/<%= venderData[i]._id %>"> <i class="fas fa-edit text-info"></i> </a> -->
                                     &nbsp;														
                                     <i class="fas fa-trash text-danger" onClick="removeDetails('removeVender','<%= venderData[i]._id %>')" style="cursor:pointer"></i>
                                   </td>
@@ -72,7 +76,6 @@
                 </table>
             </div>
         </div>
-    </div>
-    
+    </div>    
 </div>    
 <% include templates/footer.ejs %>
