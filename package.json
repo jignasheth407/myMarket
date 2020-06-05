@@ -1,9 +1,10 @@
 {
-  "name": "myMarket",
+  "name": "ez_market",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "start:dev": "PORT=3000 process.env forever start app.js --update-env"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
