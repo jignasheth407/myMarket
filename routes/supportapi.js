@@ -326,7 +326,7 @@ router.post("/login", async (req, res) => {
 });
 
 /* add Category API */
-router.post('/addCategory', async (req, res) => {
+router.post("/addCategory", async (req, res) => {
 	if (req.body.vender_id == undefined || req.body.vender_id == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
 		return;
@@ -369,7 +369,8 @@ router.post('/addCategory', async (req, res) => {
 	}
 });
 
-router.post('/categoryById', async (req, res) => {
+router.post("/categoryById", async (req, res) => {
+	console.log('-> categoryById');
 	if (req.body.vender_id == undefined || req.body.vender_id == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
 		return;
@@ -386,7 +387,7 @@ router.post('/categoryById', async (req, res) => {
 })
 
 /* categoryList API */
-router.get('/categoryList', async (req, res) => {
+router.get("/categoryList", async (req, res) => {
 	let data = await categorySchema.find({});
 	if (data != undefined && data.length > 0) {
 		res.json({ status: true, msg: 'category list', data });
@@ -401,7 +402,7 @@ router.get('/categoryList', async (req, res) => {
 
 
 /* Delete Category Details API */
-router.post('/deleteCategory', async (req, res) => {
+router.post("/deleteCategory", async (req, res) => {
 	if (req.body.postId == undefined || req.body.postId == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "invalid access" });
 		return;
