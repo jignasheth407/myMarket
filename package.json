@@ -1,12 +1,15 @@
 {
-  "name": "ez_market",
-  "version": "0.0.0",
+  "name": "ezzy_server",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
+  "author": "Shailendra Sen",
+  "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
+    "atob": "^2.1.2",
     "body-parser": "^1.19.0",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
