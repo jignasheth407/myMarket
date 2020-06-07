@@ -757,8 +757,8 @@ router.post("/TestaddProductUsingMulter", upload.single('productImage'), (req, r
 	});
 });
 
-router.post('*', async (req, res) => {
-	res.status(400).json({ msg: "Error! That route doesn`t exist. You are lost." });
-});
+// router.post('*', async (req, res) => {
+// 	res.status(400).json({ msg: "Error! That route doesn`t exist. You are lost." });
+// });
 
 module.exports = router;
