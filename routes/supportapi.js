@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const multer = require('multer');
 var express = require('express');
 var moment = require('moment');
+var atob = require('atob');
 
 var path = require('path');
 
@@ -157,10 +158,18 @@ router.post("/registerCustomer", async (req, res) => {
 		res.json({ error_msg: "address cannot be blank" });
 		return;
 	}
-
+	if (req.body.password == undefined || req.body.password == null) {
+		res.json({ error_msg: "password cannot be blank" });
+		return;
+	}
+	if (req.body.conf_password == undefined || req.body.conf_password == null) {
+		res.json({ error_msg: "conf_password cannot be blank" });
+		return;
+	}
+	
 	var phone = req.body.phone;
-
 	const checkPhone = await Customer.find({ "phone": phone });
+
 	if (checkPhone.length > 0) {
 		res.json({ status: false, msg: "this user already exists!" });
 		return;
@@ -172,36 +181,97 @@ router.post("/registerCustomer", async (req, res) => {
 	if(isNaN(phone)||phone.indexOf(" ")!=-1) {
 		res.json({ status: false, msg: "Enter numeric value" });
         return false; 
-    }
-	try
-	{
-		customerData = new Customer({
-			role : 2,
-			city : req.body.city,
-			phone: req.body.phone,
-			address: req.body.address,
-			customer_name: req.body.customer_name,
-			created_at : moment().format("ll")
-		});
-		customerData.save()
-		.then(result =>{
-			console.log(result);
-			res.status(201).json({
-				msg: "customer registered successfully",
-				customerInfo: {
-					_id: result._id,
-					name: result.customer_name,
-					phone: result.phone,
-					city: result.city,
-				}
-			})
-		})
 	}
-	catch (error) {
-		console.log(error);
-		res.json({ error_msg: "Something went wrong" });
+	var password = req.body.password;
+	var conf_password = req.body.conf_password;
+	if(password.length < 6)
+	{
+		res.json({ success : false, msg : "Password should be minimum 6 characters!"});
 		return;
+	}
 
+	if(password == conf_password) {
+		try
+		{
+			customerData = new Customer({
+				role : 2,
+				password: password,
+				city : req.body.city,
+				phone: req.body.phone,
+				address: req.body.address,
+				customer_name: req.body.customer_name,
+				created_at : moment().format("ll")
+			});
+			customerData.save()
+			.then(result =>{
+				console.log(result);
+				res.status(201).json({
+					msg: "customer registered successfully",
+					customerInfo: {
+						_id: result._id,
+						name: result.customer_name,
+						phone: result.phone,
+						city: result.city,
+					}
+				})
+			})
+		}
+		catch (error) {
+			console.log(error);
+			res.json({ error_msg: "Something went wrong" });
+			return;
+		}
+	}
+	else
+	{
+		res.json({status : false, msg : "Password and confirm password must be same!"});
+		return;
+	}
+});
+
+router.post("/customerLogin", async (req, res) => {
+	if (req.body.phone == undefined || req.body.phone == null) {
+		res.json({ error_msg: "phone cannot be blank" });
+		return;
+	}
+	if (req.body.password == undefined || req.body.password == null) {
+		res.json({ error_msg: "password cannot be blank" });
+		return;
+	}
+	var username = req.body.phone;
+	var password = req.body.password;
+
+	const customerDetail = await Customer.find({ "phone": username });
+
+	var logintime = new Date().getTime();
+
+	if (customerDetail.length > 0) {
+		if (password == customerDetail[0].password) {
+
+			req.session.phone = customerDetail[0].phone;
+			req.session.customer_id = customerDetail[0]._id;
+			req.session.customerName = customerDetail[0].customer_name;
+
+			const user_data = await Customer.update({ _id: customerDetail[0]._id }, { $set: { login_time: logintime } });
+			res.status(200).json({ success: true, msg: "customer login Successfully !",
+				result: {
+					customer_id: customerDetail[0]._id,
+					customer_name: customerDetail[0].customer_name,
+					phone: customerDetail[0].phone,
+					city: customerDetail[0].city,
+				} 
+			});
+			return;
+		}
+		else {
+			res.status(400).json({ success: false, msg: "Invalid phone_number or password !" });
+			return;
+		}
+	}
+	else
+	{
+		res.status(400).json({ success: false, msg: "Unknown user !" });
+		return;
 	}
 });
 
@@ -233,15 +303,15 @@ router.post("/login", async (req, res) => {
 
 			const user_data = await Vender.update({ _id: userDetails[0]._id }, { $set: { login_time: logintime } });
 			res.status(200).json({ success: true, msg: "vender login Successfully !",
-			result: {
-				icons_image: userDetails[0].icons_image,
-				vender_name: userDetails[0].vender_name,
-				store_name: userDetails[0].store_name,
-				phone: userDetails[0].phone,
-				email: userDetails[0].email,
-				vender_id: userDetails[0]._id,
-			} 
-		});
+				result: {
+					icons_image: userDetails[0].icons_image,
+					vender_name: userDetails[0].vender_name,
+					store_name: userDetails[0].store_name,
+					phone: userDetails[0].phone,
+					email: userDetails[0].email,
+					vender_id: userDetails[0]._id,
+				} 
+			});
 			return;
 		}
 		else {
@@ -257,33 +327,63 @@ router.post("/login", async (req, res) => {
 
 /* add Category API */
 router.post('/addCategory', async (req, res) => {
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+		return;
+	}
 	if (req.body.category_name == undefined || req.body.category_name == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
 		return;
 	}
-	try {
-		let categoryDetails = new categorySchema({
-			category_name: req.body.category_name,
-			created_at: moment().format("ll")
-		})
-		categoryDetails.save(function (error, created) {
-			if (error) {
-				console.log('error :', error);
-				res.status(HttpStatus.EXPECTATION_FAILED).json({ success: false, msg: "category already exist" });
-				return;
-			}
-			else {
-				res.status(HttpStatus.CREATED).json({ success: true, msg: "category created successfully.", data: created });
-				return;
-			}
-		})
+	const venderId = await Vender.findOne({_id: req.body.vender_id });
+	if(venderId!=null)
+	{
+		try{
+			let categoryDetails = new categorySchema({
+				vender_id: venderId,
+				category_name: req.body.category_name,
+				created_at: moment().format("ll")
+			})
+			categoryDetails.save(function (error, created) {
+				if (error) {
+					console.log('error :', error);
+					res.status(HttpStatus.EXPECTATION_FAILED).json({ success: false, msg: "category already exist" });
+					return;
+				}
+				else {
+					res.status(HttpStatus.CREATED).json({ success: true, msg: "category created successfully.", data: created });
+					return;
+				}
+			})
+		}
+		catch (error) {
+			console.log(error);
+			res.status(HttpStatus.NOT_FOUND).json({ error_msg: "Something went wrong" });
+			return;
+		}
 	}
-	catch (error) {
-		console.log(error);
-		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "Something went wrong" });
+	else
+	{
+		res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "invalid  vender_id not found." });
 		return;
 	}
 });
+
+router.post('/categoryById', async (req, res) => {
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+		return;
+	}
+
+	let category = await categorySchema.find({vender_id:req.body.vender_id})
+
+	if(category !=null && category.length > 0){
+		res.status(200).json({ success: true, categoryList: category });
+		return;
+	}
+	res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "no category found." });
+	return;
+})
 
 /* categoryList API */
 router.get('/categoryList', async (req, res) => {
@@ -325,9 +425,69 @@ router.post('/deleteCategory', async (req, res) => {
 	}
 });
 
+router.post("/addProduct", upload.single('productImage'), (req, res, next) => {
+	
+	if (req.body.vender_id == undefined || req.body.vender_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+		return;
+	}
+	if (req.body.category_id == undefined || req.body.category_id == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id cannot be blank" });
+		return;
+	}
+	if (req.body.category_name == undefined || req.body.category_name == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
+		return;
+	}
+	if (req.body.product_name == undefined || req.body.product_name == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "product_name cannot be blank" });
+		return;
+	}
+	if (req.body.price == undefined || req.body.price == null) {
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
+		return;
+	}
+	
+	var correctedPath = path.normalize(req.file.path);
+	correctedPath = correctedPath.replace(new RegExp(/\\/g),"/");
+
+	productData = new itemsSchema({
+		vender_id: req.body.vender_id,
+		category_id: req.body.category_id,
+		category_name: req.body.category_name,
+		product_name: req.body.product_name,
+		price: req.body.price,
+		base64_image : clientUrl +'/'+ correctedPath,
+		created_at : moment().format("ll")
+	});
+	productData
+	.save()
+	.then(result => {
+		console.log(result);
+		res.status(201).json({
+			message: "product created successfully",
+			Product: {
+				product_id: result._id,
+				vender_id: result.vender_id,
+				category_id: result.category_id,
+				category_name: result.category_name,
+				product_name: result.product_name,
+				price: result.price,
+				productImage: result.base64_image
+			}
+		});
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	});
+});
+
 
 /* add Product API */
-router.post('/addProduct', async (req, res) => {
+router.post('/addProduct_Base64', async (req, res) => {
 	if (req.body.vender_id == undefined || req.body.vender_id == null) {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
 		return;
@@ -344,6 +504,17 @@ router.post('/addProduct', async (req, res) => {
 		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
 		return;
 	}
+
+	var base64 = req.body.base64_image;
+	var base64str = base64.substr(22);
+	var decoded = atob(base64str);
+	console.log("-> FileSize: " + decoded.length);
+	if(decoded.length>=62645)
+	{
+		res.status(HttpStatus.NOT_FOUND).json({ error_msg: "Reduce the size of image" });
+		return;
+	}
+
 	try
 	{
 		let productDetails = new itemsSchema({
@@ -529,13 +700,29 @@ router.post('/orderList', async (req, res) => {
 });
 
 
+router.post('/sendSMSLink', async (req, res) => {
+	var number = req.body.mobile_number; 
+	console.log(number);
+	smsData = new SMS({
+		vender_id: req.body.vender_id,
+		mobile_number: req.body.mobile_number,
+		created_at : moment().format("ll")
+	});
+	smsData.save().then(result => {
+		console.log(result);
+	})
+});
 
-router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
+
+
+router.post("/TestaddProductUsingMulter", upload.single('productImage'), (req, res, next) => {
 	var correctedPath = path.normalize(req.file.path);
 	correctedPath = correctedPath.replace(new RegExp(/\\/g),"/");
 
 	productData = new itemsSchema({
+		vender_id: req.body.vender_id,
 		category_id: req.body.category_id,
+		category_name: req.body.category_name,
 		product_name: req.body.product_name,
 		price: req.body.price,
 		base64_image : clientUrl +'/'+ correctedPath,
@@ -547,10 +734,13 @@ router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
 		console.log(result);
 		res.status(201).json({
 			message: "created product successfully",
-			createProduct: {
-				name: result.product_name,
+			Product: {
+				product_id: result._id,
+				vender_id: result.vender_id,
+				category_id: result.category_id,
+				category_name: result.category_name,
+				product_name: result.product_name,
 				price: result.price,
-				_id: result._id,
 				request:{
 					type: "GET",
 					url: "http://localhost:3000/product/" + result._id
@@ -565,31 +755,6 @@ router.post("/testproduct", upload.single('productImage'), (req, res, next) => {
 		});
 	});
 });
-
-
-router.post('/sendSMSLink', async (req, res) => {
-	var number = req.body.mobile_number; 
-	console.log(number);
-	smsData = new SMS({
-		vender_id: req.body.vender_id,
-		mobile_number: req.body.mobile_number,
-		created_at : moment().format("ll")
-	});
-	smsData.save().then(result => {
-		console.log(result);
-		
-
-	})
-
-
-	
-
-
-});
-
-
-
-
 
 router.post('*', async (req, res) => {
 	res.status(400).json({ msg: "Error! That route doesn`t exist. You are lost." });

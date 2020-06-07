@@ -11,6 +11,10 @@ const CustomerSchema = new Schema({
         unique: true,
         required: true
     },
+    password: {
+        type: String,
+        required: false
+    },
     role: {
         type: String,
         required: true
@@ -22,7 +26,11 @@ const CustomerSchema = new Schema({
     city: {
         type: String,
         required: false
-    },    
+    },
+    login_time: {
+		type: String,
+		required: false
+    },   
     created_at: {
         type: String,
     },

@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "start:dev": "PORT=3000 process.env forever start app.js --update-env"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",

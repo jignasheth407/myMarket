@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const categorySchema = new Schema({ 
+const categorySchema = new Schema({
+    vender_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     category_name: {
         type: String,
-		unique: true,
-		required: true,
-		trim: true
+		required: true
     },
     created_at: {
         type: String
