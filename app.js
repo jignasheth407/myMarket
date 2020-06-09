@@ -1,13 +1,13 @@
-var cookieParser = require('cookie-parser');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-var createError = require('http-errors');
-var express = require('express');
-var flash = require('req-flash');
-var logger = require('morgan');
-var path = require('path');
-var cors = require('cors');
-var md5 = require('md5');
+var cookieParser = require("cookie-parser");
+const session = require("express-session");
+const bodyParser = require("body-parser");
+var createError = require("http-errors");
+var express = require("express");
+var flash = require("req-flash");
+var logger = require("morgan");
+var path = require("path");
+var cors = require("cors");
+var md5 = require("md5");
 
 /* Database connection */
 require("./mongo");
@@ -23,49 +23,53 @@ require("./model/vender");
 require("./model/customer");
 require("./model/order");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var supportRouter = require('./routes/supportapi');
+var indexRouter = require("./routes/index");
+var usersRouter = require("./routes/users");
+var supportRouter = require("./routes/supportapi");
 
 var app = express();
 
-app.use(session({ 
-	secret: 'somerandonstuffs',
-	resave: false,
-	saveUninitialized: false,
-	cookie: { expires: 6000000 }
-}));
+app.use(
+  session({
+    secret: "somerandonstuffs",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { expires: 6000000 },
+  })
+);
 
 app.use(flash());
 
 app.use(cors());
 
 /* view engine setup */
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/api', supportRouter);
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
+app.use("/api", supportRouter);
 
-/* catch 404 and forward to error handler */ 
-app.use(function(req, res, next) {
-	next(createError(404));
+/* catch 404 and forward to error handler */
+
+app.use(function (req, res, next) {
+  next(createError(404));
 });
 
-/* error handler */ 
-app.use(function(err, req, res, next) {
+/* error handler */
+
+app.use(function (err, req, res, next) {
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get("env") === "development" ? err : {};
   res.status(err.status || 500);
-  res.render('error');
+  res.render("error");
 });
 
 module.exports = app;
