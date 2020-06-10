@@ -22,11 +22,11 @@ router.use(
 
 /* SET STORAGE MULTER */
 var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads");
-  },
-  filename: function (req, file, cb) {
-    var fileExtension = file.originalname.split(".");
+    destination: function (req, file, cb) {
+        cb(null, "public/uploads");
+    },
+    filename: function (req, file, cb) {
+        var fileExtension = file.originalname.split(".");
     cb(
       null,
       `${file.fieldname}-${Date.now()}.${
@@ -38,11 +38,14 @@ var storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   // reject a file
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png")
+    {
+        cb(null, true);
+    } 
+    else
+    {
+        cb(null, false);
+    }
 };
 
 const upload = multer({
@@ -451,94 +454,87 @@ router.post("/categoryByProduct", async (req, res) => {
 
 /* Delete Category Details API */
 router.post("/deleteCategory", async (req, res) => {
-  if (req.body.postId == undefined || req.body.postId == null) {
-    res.status(HttpStatus.NOT_FOUND).json({ error_msg: "invalid access" });
-    return;
-  }
-  const result = await categorySchema.findOne({ _id: req.body.postId });
-  if (result) {
-    let result = await categorySchema.findByIdAndRemove(
-      { _id: req.body.postId },
-      function (err, success) {
-        if (err) {
-          console.log(err);
-          res.status(HttpStatus.NOT_FOUND).json({ err: err });
-        } else {
-          res
-            .status(HttpStatus.OK)
-            .json({ success: true, msg: "category deleted successfully" });
-          return;
-        }
-      }
-    );
-  } else {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ success: false, msg: "category not found" });
-    return;
-  }
+    if (req.body.postId == undefined || req.body.postId == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "invalid access" });
+        return;
+    }
+    const result = await categorySchema.findOne({ _id: req.body.postId });
+    if (result)
+    {
+        let result = await categorySchema.findByIdAndRemove({ _id: req.body.postId },
+        function (err, success) {
+            if (err)
+            {
+                console.log(err);
+                res.status(HttpStatus.NOT_FOUND).json({ err: err });
+            }
+            else
+            {
+                res.status(HttpStatus.OK).json({ success: true, msg: "category deleted successfully" });
+                return;
+            }
+        });
+    }
+    else
+    {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "category not found" });
+        return;
+    }
 });
 
 router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
-  if (req.body.vender_id == undefined || req.body.vender_id == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "vender_id cannot be blank" });
-    return;
-  }
-  if (req.body.category_id == undefined || req.body.category_id == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "category_id cannot be blank" });
-    return;
-  }
-  if (req.body.category_name == undefined || req.body.category_name == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "category_name cannot be blank" });
-    return;
-  }
-  if (req.body.product_name == undefined || req.body.product_name == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "product_name cannot be blank" });
-    return;
-  }
-  if (req.body.price == undefined || req.body.price == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "price cannot be blank" });
-    return;
-  }
+    if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+        return;
+    }
+    if (req.body.category_id == undefined || req.body.category_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id cannot be blank" });
+        return;
+    }
+    if (req.body.category_name == undefined || req.body.category_name == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_name cannot be blank" });
+        return;
+    }
+    if (req.body.product_name == undefined || req.body.product_name == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "product_name cannot be blank" });
+        return;
+    }
+    if (req.body.price == undefined || req.body.price == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
+        return;
+    }
+    var file = req.file
+    console.log(file);
+    
+    // var correctedPath = path.normalize(req.file.path);
+    // correctedPath = correctedPath.replace(new RegExp(/\\/g), "/");
 
-  var correctedPath = path.normalize(req.file.path);
-  correctedPath = correctedPath.replace(new RegExp(/\\/g), "/");
-
-  productData = new itemsSchema({
-    vender_id: req.body.vender_id,
-    category_id: req.body.category_id,
-    category_name: req.body.category_name,
-    product_name: req.body.product_name,
-    price: req.body.price,
-    base64_image: clientUrl + "/" + correctedPath,
-    created_at: moment().format("ll"),
-  });
-  productData
+    productData = new itemsSchema({
+        vender_id: req.body.vender_id,
+        category_id: req.body.category_id,
+        category_name: req.body.category_name,
+        product_name: req.body.product_name,
+        price: req.body.price,
+        // base64_image: clientUrl + "/" + correctedPath,
+        base64_image: clientUrl + "/" + file.filename,
+        created_at: moment().format("ll"),
+    });
+    productData
     .save()
     .then((result) => {
-      console.log(result);
-      res.status(201).json({
-        message: "product created successfully",
-        Product: {
-          product_id: result._id,
-          vender_id: result.vender_id,
-          category_id: result.category_id,
-          category_name: result.category_name,
-          product_name: result.product_name,
-          price: result.price,
-          productImage: result.base64_image,
-        },
-      });
+        console.log(result);
+        res.status(201).json({
+            message: "product created successfully",
+            Product: {
+                product_id: result._id,
+                vender_id: result.vender_id,
+                category_id: result.category_id,
+                category_name: result.category_name,
+                product_name: result.product_name,
+                price: result.price,
+                productImage: result.base64_image,
+            },
+        });
     })
     .catch((err) => {
       console.log(err);
