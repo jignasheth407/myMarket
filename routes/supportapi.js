@@ -535,8 +535,7 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
                 productImage: result.base64_image,
             },
         });
-    })
-    .catch((err) => {
+    }).catch((err) => {
       console.log(err);
       res.status(500).json({ error: err });
     });
@@ -755,10 +754,7 @@ router.post("/sendSMSLink", async (req, res) => {
   // var PHONE = req.body.mobile_number;
   // var MESSAGE = "Hello Text Message";
 
-  axios
-    .get(
-      "http://SMS.CREATORSDESIRE.IN/unified.php?key=pa6637klsu24U24PAKLS6637&ph=09630480413&sndr=DEMOKB&text=Hello SIR"
-    )
+  axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=9131281681&sndr=CDSIND&text=Hello shailendra")
     .then((response) => {
       if (response.status == 200) {
         console.log(response.data);
