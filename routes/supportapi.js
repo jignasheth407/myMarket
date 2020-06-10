@@ -341,7 +341,7 @@ router.post("/login", async (req, res) => {
       return;
     }
   } else {
-    res.status(400).json({ status: false, msg: "Unknown user !" });
+    res.status(400).json({success: false, msg: "Unknown user !" });
     return;
   }
 });
