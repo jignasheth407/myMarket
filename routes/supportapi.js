@@ -185,17 +185,20 @@ router.post("/registerCustomer", async (req, res) => {
     res.json({ status: false, msg: "this user already exists!" });
     return;
   }
-  if (phone.length != 10) {
-    res.json({
-      status: false,
-      msg: "phone number must be enter 10 characters",
-    });
-    return;
-  }
-  if (isNaN(phone) || phone.indexOf(" ") != -1) {
-    res.json({ status: false, msg: "Enter numeric value" });
-    return false;
-  }
+  const checkVender = await Vender.find({phone: phone});
+    if(checkVender.length > 0) {
+        res.json({ status: false, msg: "this mobile number already exists use another number" });
+        return;
+    }
+
+    if(phone.length != 10) {
+        res.json({ status: false, msg: "phone number must be enter 10 characters" });
+        return;
+    }
+    if (isNaN(phone) || phone.indexOf(" ") != -1) {
+        res.json({ status: false, msg: "Enter numeric value" });
+        return false;
+    }
   var password = req.body.password;
   var conf_password = req.body.conf_password;
   if (password.length < 6) {
@@ -399,37 +402,51 @@ router.post("/addCategory", async (req, res) => {
   }
 });
 
+/* categoryById API */
 router.post("/categoryById", async (req, res) => {
-  console.log("-> categoryById");
-  if (req.body.vender_id == undefined || req.body.vender_id == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "vender_id cannot be blank" });
+    if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+        return;
+    }
+    let category = await categorySchema.find({ vender_id: req.body.vender_id });
+    if (category != null && category.length > 0) {
+        res.status(200).json({ success: true, categoryList: category });
+        return;
+    }
+    res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "no category found." });
     return;
-  }
-
-  let category = await categorySchema.find({ vender_id: req.body.vender_id });
-
-  if (category != null && category.length > 0) {
-    res.status(200).json({ success: true, categoryList: category });
-    return;
-  }
-  res
-    .status(HttpStatus.NOT_FOUND)
-    .json({ success: false, msg: "no category found." });
-  return;
 });
 
 /* categoryList API */
 router.get("/categoryList", async (req, res) => {
-  let data = await categorySchema.find({});
-  if (data != undefined && data.length > 0) {
-    res.json({ status: true, msg: "category list", data });
-    return;
-  } else {
-    res.json({ status: false, msg: "no category found.", data });
-    return;
-  }
+    let data = await categorySchema.find({});
+    if (data != undefined && data.length > 0) {
+        res.json({ status: true, msg: "category list", data });
+        return;
+    }
+    else
+    {
+        res.json({ status: false, msg: "no category found.", data });
+        return;
+    }
+});
+
+/* search procuct by category */
+router.post("/categoryByProduct", async (req, res) => {
+    if (req.body.category_id == undefined || req.body.category_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "category_id can not be blank" });
+        return;
+    }
+    const product = await itemsSchema.find({ category_id: req.body.category_id });
+    if (product != undefined && product.length > 0) {
+        res.status(HttpStatus.OK).json({ success: true, product });
+        return;
+    }
+    else
+    {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "Product not found.", product });
+        return;
+    }
 });
 
 /* Delete Category Details API */
@@ -646,28 +663,6 @@ router.post("/deleteProduct", async (req, res) => {
     res
       .status(HttpStatus.NOT_FOUND)
       .json({ success: false, msg: "Product not found" });
-    return;
-  }
-});
-
-/* search procuct by category */
-router.post("/categoryByProduct", async (req, res) => {
-  if (req.body.category_id == undefined || req.body.category_id == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "category_id can not be blank" });
-    return;
-  }
-
-  const product = await itemsSchema.find({ category_id: req.body.category_id });
-
-  if (product != undefined && product.length > 0) {
-    res.status(HttpStatus.OK).json({ success: true, product });
-    return;
-  } else {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ success: false, msg: "Product not found.", product });
     return;
   }
 });
