@@ -503,6 +503,8 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
         return;
     }
+    var file = req.file
+    
     var body = req.body;
     console.log('-> body:', body);
 
@@ -522,8 +524,7 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         base64_image: clientUrl + "/" + file.filename,
         created_at: moment().format("ll"),
     });
-    productData
-    .save()
+    productData.save()
     .then((result) => {
         console.log(result);
         res.status(201).json({
@@ -539,8 +540,8 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
             },
         });
     }).catch((err) => {
-      console.log(err);
-      res.status(500).json({ error: err });
+        console.log(err);
+        res.status(500).json({ error: err });
     });
 });
 
@@ -727,8 +728,6 @@ router.get("/customerList", async (req, res) => {
 });
 
 /* send order List to vender API */
-// router.post('')
-
 router.post("/orderList", async (req, res) => {
   if (req.body.vender_id == undefined || req.body.vender_id == null) {
     res
@@ -739,17 +738,30 @@ router.post("/orderList", async (req, res) => {
 
   const orderlist = await Order.find({ vender_id: req.body.vender_id });
 
-  if (orderlist != undefined && orderlist.length > 0) {
-    res.status(HttpStatus.OK).json({ success: true, orderlist });
-    return;
-  } else {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ success: false, msg: "order not found.", orderlist });
-    return;
+  if(orderlist != undefined && orderlist.length > 0)
+    {
+        console.log('Order :', orderlist)
+        let PHONE = req.body.mobile_number;
+        let MESSAGE = "https://play.google.com/store/apps/category/NEWS_AND_MAGAZINES";
+        axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=" +
+            PHONE +
+            "&sndr=CDSIND&text=" +
+            orderlist
+        ).then((result) => {
+            if (result.status == 200) {
+                // console.log(result);
+                res.json(result.data);
+                return result;
+            }
+        }).catch((error) => {
+        console.log(error);
+        });
+    }
+  else
+  {
+
   }
 });
-
 
 
 /* send Link By sms API */
@@ -763,7 +775,7 @@ router.post("/sendSMSLink", async (req, res) => {
     ).then((result) => {
         if (result.status == 200) {
             // console.log(result);
-            res.json(result.data);
+            res.json({success: true, msg: result.data} );
             return result;
         }
     }).catch((error) => {

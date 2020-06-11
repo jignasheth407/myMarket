@@ -60,7 +60,7 @@ app.use(function (req, res, next) {
   console.log("Origin: " + origin);
   console.log("device: " + deviceid);
     if(allowedOrigins.indexOf(origin) > -1){
-      res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Origin', '*');
     }
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS','POST','PUT');
