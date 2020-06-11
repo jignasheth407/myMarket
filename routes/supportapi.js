@@ -732,6 +732,7 @@ router.post("/orderList", async (req, res) => {
     }
 
     const orderlist = await Order.find({ vender_id: req.body.vender_id });
+    console.log(orderlist)
 
     if(orderlist != undefined && orderlist.length > 0)
     {
@@ -754,7 +755,8 @@ router.post("/orderList", async (req, res) => {
     }
     else
     {
-
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "no order details found"});
+        return;
     }
 });
 
