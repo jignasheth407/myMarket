@@ -504,15 +504,12 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         return;
     }
     var file = req.file
-    
+    // if(!file) {
+    //     res.json({ status: false, msg: "pleae select the image" });
+    //     return false;
+    // }
     var body = req.body;
     console.log('-> body:', body);
-
-    var file = req.file
-    console.log('-> File:', file);
-    
-    // var correctedPath = path.normalize(req.file.path);
-    // correctedPath = correctedPath.replace(new RegExp(/\\/g), "/");
 
     productData = new itemsSchema({
         vender_id: req.body.vender_id,
@@ -729,16 +726,14 @@ router.get("/customerList", async (req, res) => {
 
 /* send order List to vender API */
 router.post("/orderList", async (req, res) => {
-  if (req.body.vender_id == undefined || req.body.vender_id == null) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "vender_id can not be blank" });
-    return;
-  }
+    if(req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
+        return;
+    }
 
-  const orderlist = await Order.find({ vender_id: req.body.vender_id });
+    const orderlist = await Order.find({ vender_id: req.body.vender_id });
 
-  if(orderlist != undefined && orderlist.length > 0)
+    if(orderlist != undefined && orderlist.length > 0)
     {
         console.log('Order :', orderlist)
         let PHONE = req.body.mobile_number;
@@ -757,10 +752,10 @@ router.post("/orderList", async (req, res) => {
         console.log(error);
         });
     }
-  else
-  {
+    else
+    {
 
-  }
+    }
 });
 
 
