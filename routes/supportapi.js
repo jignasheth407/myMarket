@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 var express = require("express");
 var moment = require("moment");
-var atob = require("atob");
+const axios = require("axios");
 
 var path = require("path");
 
@@ -503,8 +503,11 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
         return;
     }
+    var body = req.body;
+    console.log('-> body:', body);
+
     var file = req.file
-    console.log(file);
+    console.log('-> File:', file);
     
     // var correctedPath = path.normalize(req.file.path);
     // correctedPath = correctedPath.replace(new RegExp(/\\/g), "/");
@@ -747,26 +750,29 @@ router.post("/orderList", async (req, res) => {
   }
 });
 
-const axios = require("axios");
 
-/* sms API */
+
+/* send Link By sms API */
 router.post("/sendSMSLink", async (req, res) => {
-  // var PHONE = req.body.mobile_number;
-  // var MESSAGE = "Hello Text Message";
-
-  axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=9131281681&sndr=CDSIND&text=Hello shailendra")
-    .then((response) => {
-      if (response.status == 200) {
-        console.log(response.data);
-        console.log("Message SuccessFully Submitted");
-        return response;
-      }
-    })
-    .catch((error) => {
+    let PHONE = req.body.mobile_number;
+    let MESSAGE = "https://play.google.com/store/apps/category/NEWS_AND_MAGAZINES";
+    axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=" +
+        PHONE +
+        "&sndr=CDSIND&text=" +
+        MESSAGE
+    ).then((result) => {
+        if (result.status == 200) {
+            // console.log(result);
+            res.json(result.data);
+            return result;
+        }
+    }).catch((error) => {
       console.log(error);
     });
 });
 
+
+/* Testing API */
 router.post(
   "/TestaddProductUsingMulter",
   upload.single("productImage"),

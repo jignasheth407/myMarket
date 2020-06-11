@@ -53,6 +53,22 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(function (req, res, next) {
+  var allowedOrigins = ['http://127.0.0.1:8080', 'http://45.35.190.38', 'http://45.35.190.38:80', 'http://localhost:3000','http://localhost'];
+  var origin = req.headers.source;
+  var deviceid = req.headers.deviceid;
+  console.log("Origin: " + origin);
+  console.log("device: " + deviceid);
+    if(allowedOrigins.indexOf(origin) > -1){
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS','POST','PUT');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, source, deviceid');
+    res.header('Access-Control-Allow-Credentials', true);
+    next();
+});
+
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/api", supportRouter);
