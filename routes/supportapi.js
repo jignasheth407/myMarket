@@ -506,11 +506,11 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         return;
     }
     var file = req.file;
-    console.log(file);
+    console.log('->file:', file);
     var body = req.body;
     console.log('-> body:', body);
     
-    if (!req.file) {
+    if (!file) {
         res.status(400).json({ success: false, msg: "pleae select the image" });
         return false;
     }
@@ -527,7 +527,7 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         });
         productData.save()
         .then((result) => {
-            console.log(result);
+            console.log('-> Result:', result);
             res.status(201).json({
                 message: "product created successfully",
                 Product: {
