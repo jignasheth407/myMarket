@@ -27,17 +27,17 @@ var storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         var fileExtension = file.originalname.split(".");
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}.${
-        fileExtension[fileExtension.length - 1]
-      }`
-    );
-  },
+        cb(
+        null,
+        `${file.fieldname}-${Date.now()}.${
+            fileExtension[fileExtension.length - 1]
+        }`
+        );
+    },
 });
 
 const fileFilter = (req, file, cb) => {
-  // reject a file
+  
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png")
     {
         cb(null, true);
@@ -550,7 +550,8 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
 });
 
 /* add Product API */
-router.post("/addProduct_Base64", async (req, res) => {
+router.post("/addProductBase64", async (req, res) => {
+    
   if (req.body.vender_id == undefined || req.body.vender_id == null) {
     res
       .status(HttpStatus.NOT_FOUND)
@@ -576,16 +577,16 @@ router.post("/addProduct_Base64", async (req, res) => {
     return;
   }
 
-  var base64 = req.body.base64_image;
-  var base64str = base64.substr(22);
-  var decoded = atob(base64str);
-  console.log("-> FileSize: " + decoded.length);
-  if (decoded.length >= 62645) {
-    res
-      .status(HttpStatus.NOT_FOUND)
-      .json({ error_msg: "Reduce the size of image" });
-    return;
-  }
+//   var base64 = req.body.base64_image;
+//   var base64str = base64.substr(22);
+//   var decoded = atob(base64str);
+//   console.log("-> FileSize: " + decoded.length);
+//   if (decoded.length >= 62645) {
+//     res
+//       .status(HttpStatus.NOT_FOUND)
+//       .json({ error_msg: "Reduce the size of image" });
+//     return;
+//   }
 
   try {
     let productDetails = new itemsSchema({
@@ -737,19 +738,37 @@ router.post("/sendOrderList", async (req, res) => {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
         return;
     }
+    // if(req.body.order_id == undefined || req.body.order_id == null) {
+    //     res.status(HttpStatus.NOT_FOUND).json({ error_msg: "order_id can not be blank" });
+    //     return;
+    // }
+    var vender = req.body.vender_id;
+    const venderData = await Vender.findOne({'_id': vender});
+    // console.log('-> Phone:', venderData.phone)
 
-    const orderlist = await Order.find({ vender_id: req.body.vender_id });
-    console.log(orderlist)
+    var phone = req.body.phone;
+    const orderData = await Order.find({phone: phone});
+    // console.log('-> orderData:', orderData);
 
-    if(orderlist != undefined && orderlist.length > 0)
+    // var sendOrder = {
+    //     sendOrder: orderData.address,
+    //     sendOrder: orderData.phone,
+    //     sendOrder: orderData.category,
+    //     sendOrder:  orderData.product_name,
+    //     sendOrder: orderData.quantity,
+    // }
+
+    console.log('--> sendOrder:', sendOrder);
+
+    if(orderData)
     {
-        console.log('Order :', orderlist)
-        let PHONE = req.body.mobile_number;
+        // console.log('Order Inside  :', orderData)
+        let PHONE = venderData.phone;
         let MESSAGE = "https://play.google.com/store/apps/category/NEWS_AND_MAGAZINES";
         axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=" +
-            PHONE +
+        PHONE +
             "&sndr=CDSIND&text=" +
-            orderlist
+            sendOrder
         ).then((result) => {
             if (result.status == 200) {
                 // console.log(result);
