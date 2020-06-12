@@ -482,7 +482,9 @@ router.post("/deleteCategory", async (req, res) => {
     }
 });
 
+/* addProduct API */
 router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
+    
     if (req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
         return;
@@ -503,43 +505,46 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
         return;
     }
-    var file = req.file
-    // if(!file) {
-    //     res.json({ status: false, msg: "pleae select the image" });
-    //     return false;
-    // }
+    var file = req.file;
+    console.log(file);
     var body = req.body;
     console.log('-> body:', body);
-
-    productData = new itemsSchema({
-        vender_id: req.body.vender_id,
-        category_id: req.body.category_id,
-        category_name: req.body.category_name,
-        product_name: req.body.product_name,
-        price: req.body.price,
-        // base64_image: clientUrl + "/" + correctedPath,
-        base64_image: clientUrl + "/" + file.filename,
-        created_at: moment().format("ll"),
-    });
-    productData.save()
-    .then((result) => {
-        console.log(result);
-        res.status(201).json({
-            message: "product created successfully",
-            Product: {
-                product_id: result._id,
-                vender_id: result.vender_id,
-                category_id: result.category_id,
-                category_name: result.category_name,
-                product_name: result.product_name,
-                price: result.price,
-                productImage: result.base64_image,
-            },
+    
+    if (!req.file) {
+        res.status(400).json({ success: false, msg: "pleae select the image" });
+        return false;
+    }
+    else
+    {
+        productData = new itemsSchema({
+            vender_id: req.body.vender_id,
+            category_id: req.body.category_id,
+            category_name: req.body.category_name,
+            product_name: req.body.product_name,
+            price: req.body.price,
+            base64_image: clientUrl + "/" + file.filename,
+            created_at: moment().format("ll"),
         });
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).json({ error: err });
-    });
+        productData.save()
+        .then((result) => {
+            console.log(result);
+            res.status(201).json({
+                message: "product created successfully",
+                Product: {
+                    product_id: result._id,
+                    vender_id: result.vender_id,
+                    category_id: result.category_id,
+                    category_name: result.category_name,
+                    product_name: result.product_name,
+                    price: result.price,
+                    productImage: result.base64_image,
+                },
+            });
+        }).catch((err) => {
+          console.log(err);
+          res.status(500).json({ error: err });
+        });
+    }
 });
 
 /* add Product API */
