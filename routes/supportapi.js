@@ -505,6 +505,8 @@ router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "price cannot be blank" });
         return;
     }
+    var req_ = req
+    console.log('-> re:', req_);
     var file = req.file;
     console.log('->file:', file);
     var body = req.body;
