@@ -732,8 +732,53 @@ router.get("/customerList", async (req, res) => {
   }
 });
 
+/* placeOrder to vender API */
+router.post("/placeOrder", async (req, res) => {
+    console.log('call placeOrder API')
+    if(req.body.venderNumber == undefined || req.body.venderNumber == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "venderNumber can not be blank" });
+        return;
+    }
+    if(req.body.customerNumber == undefined || req.body.customerNumber == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "customerNumber can not be blank" });
+        return;
+    }
+    var VENDER = req.body.venderNumber
+    var customerNumber = req.body.customerNumber
+    const orderData = await Order.find({phone: customerNumber});
+    // console.log('-> order:', orderData)
+
+    var oders = [];
+    for(var i=0; i < orderData.length; i++) {
+        oders.push({
+            phone: orderData[i].phone,
+            product_name: orderData[i].product_name,
+            quantity: orderData[i].quantity,
+            price: orderData[i].price,
+        })
+    }
+    console.log('-> order :', oders)
+    axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=" +
+        VENDER +
+            "&sndr=CDSIND&text=" +
+            orderData
+        ).then((result) => {
+            if (result.status == 200) {
+                // console.log(result);
+                res.json(result.data);
+                return result;
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+
+})
+
+
+
+
 /* send order List to vender API */
-router.post("/sendOrderList", async (req, res) => {
+router.post("/TestsendOrderList", async (req, res) => {
     if(req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
         return;
@@ -750,14 +795,14 @@ router.post("/sendOrderList", async (req, res) => {
     const orderData = await Order.find({phone: phone});
     // console.log('-> orderData:', orderData);
 
-    // var sendOrder = {
-    //     sendOrder: orderData.address,
-    //     sendOrder: orderData.phone,
-    //     sendOrder: orderData.category,
-    //     sendOrder:  orderData.product_name,
-    //     sendOrder: orderData.quantity,
-    // }
-
+    var sendOrder = {
+        orderData: address,
+        orderData:phone,
+        orderData:category,
+        orderData:product_name,
+        orderData:quantity,
+    }
+    
     console.log('--> sendOrder:', sendOrder);
 
     if(orderData)
