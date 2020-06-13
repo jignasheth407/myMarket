@@ -778,7 +778,7 @@ router.post("/placeOrder", async (req, res) => {
 
 
 /* send order List to vender API */
-router.post("/TestsendOrderList", async (req, res) => {
+router.post("/sendOrderList", async (req, res) => {
     if(req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
         return;
