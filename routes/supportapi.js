@@ -166,10 +166,10 @@ router.post("/registerCustomer", async (req, res) => {
   var phone = req.body.phone;
   const checkPhone = await Customer.find({ phone: phone });
 
-  if (checkPhone.length > 0) {
-    res.json({ status: false, msg: "this user already exists!" });
-    return;
-  }
+    if (checkPhone.length > 0) {
+        res.json({ status: false, msg: "this user already exists!" });
+        return;
+    }
   const checkVender = await Vender.find({ phone: phone });
   if (checkVender.length > 0) {
     res.json({
