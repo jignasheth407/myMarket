@@ -715,9 +715,9 @@ router.post("/placeOrder", async (req, res) => {
             price: orderData[i].price,
         });
     }
-    /* convert Object to string */ 
+    /* convert Object to string */
     let sendOredes = JSON.stringify(orders); 
-    console.log('->sendOredes:', sendOredes);
+    // console.log('->sendOredes:', sendOredes);
     axios.get("http://SMS.CREATORSDESIRE.IN/unified.php?key=1n9594wh341u41U1NWH39594&ph=" +
         vender_number +
         "&sndr=CDSIND&text=" +
