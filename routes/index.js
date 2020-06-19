@@ -152,12 +152,12 @@ router.get('/dashboard', async (req, res) => {
 	var admin_name = req.session.admin_name;
 	if(emailId)
 	{
-		Users.count(function(error, user_cont) {
+		Vender.count(function(error, vendor_cont) {
 			var notification_arr = {
 				'type': req.flash('type'),
 				'text_msg': req.flash('text_msg')
 			}
-			res.render('index', { title: 'Dashboard', menuId: 'Dashboard', msg: notification_arr, adminname:admin_name});					
+			res.render('index', { title: 'Dashboard', menuId: 'Dashboard', msg: notification_arr, adminname:admin_name, vendor_cont: vendor_cont});					
 		});
 	}
 	else
