@@ -140,26 +140,6 @@
 				}				
 			}
 			
-			/* Valid eth address */
-			function ethAddress_validation()
-			{ 
-				var id = $('#eth_address').val();
-				$.ajax({
-					url: '/valideth/' + id,
-					method: 'POST',
-					data: { id: id }
-				}).done(function(res) {	
-					if(res.success == true)
-					{
-						$('#ethaddress_val').text('');
-					}
-					else
-					{
-						$('#ethaddress_val').text('Invalid ETH address');
-					}
-				});
-			}
-		
 			/* removeDetails */
 			function removeDetails(routername, id)
 			{
