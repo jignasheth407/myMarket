@@ -213,10 +213,6 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 	let admin_name = req.session.admin_name;
 	if(emailId)
 	{
-		
-		// var correctedPath = path.normalize(req.file.path);
-		// correctedPath = correctedPath.replace(new RegExp(/\\/g),"/");
-
 		var email = req.body.email;
 		var phone = req.body.phone;
 		var pass = req.body.password;
@@ -244,7 +240,7 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 				res.render('add_vender', {title:'Add Vender',  menuId:'vender', msg: notification_arr, adminname: admin_name });
 			}
 			var file = req.file;
-			
+
 			if(pass == conf_pass)
 			{
 				try
