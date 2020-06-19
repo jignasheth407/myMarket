@@ -244,6 +244,7 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 				res.render('add_vender', {title:'Add Vender',  menuId:'vender', msg: notification_arr, adminname: admin_name });
 			}
 			var file = req.file;
+			
 			if(pass == conf_pass)
 			{
 				try

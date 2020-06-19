@@ -55,16 +55,14 @@
                               %>
                            
                                 <tr>
-                                    
-                                  <!-- <td> <img src="https://via.placeholder.com/150x50"> </td> -->
-                                  <td> <img src="<%= venderData[i].icons_image %>" width="100px" height="50"></td>
-                                  <td> <%= venderData[i].store_name %> </td>
-                                  <td> <%= venderData[i].vender_name %> </td>
-                                  <td> <%= venderData[i].email %> </td>
-                                  <td> <%= venderData[i].phone %> </td>
-                                  <td> <%= venderData[i].password %> </td>
-                                  <td> <a href="/venderDetails/<%= venderData[i]._id %>">Details</a> </td>
-                                  <td>
+                                    <td> <img src="<%= venderData[i].icons_image %>" width="100px" height="50"></td>
+                                    <td> <%= venderData[i].store_name %> </td>
+                                    <td> <%= venderData[i].vender_name %> </td>
+                                    <td> <%= venderData[i].email %> </td>
+                                    <td> <%= venderData[i].phone %> </td>
+                                    <td> <%= venderData[i].password %> </td>
+                                    <td> <a href="/venderDetails/<%= venderData[i]._id %>">Details</a> </td>
+                                    <td>
                                     <!-- <a href="/editVender/<%= venderData[i]._id %>"> <i class="fas fa-edit text-info"></i> </a> -->
                                     &nbsp;														
                                     <i class="fas fa-trash text-danger" onClick="removeDetails('removeVender','<%= venderData[i]._id %>')" style="cursor:pointer"></i>
