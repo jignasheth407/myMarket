@@ -346,13 +346,9 @@ router.post('/updateVendor/:postId', upload.single('image'), async (req, res) =>
 	if(emailId)
 	{
 		const update_vendor = await Vender.findOne({_id: req.params.postId});
-		console.log('-> POST:',update_vendor);
 		try
 		{
-			
-			
 			var logoUrl = clientUrl + "/" + file.filename;
-			console.log(logoUrl)
 			const post = await Vender.update({_id : req.params.postId},
 				{ $set : {icons_image: logoUrl, email: req.body.email, phone: req.body.phone, updated_at: new Date().getTime(), } 
 			});
