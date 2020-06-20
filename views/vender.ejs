@@ -63,7 +63,7 @@
                                     <td> <%= venderData[i].password %> </td>
                                     <td> <a href="/venderDetails/<%= venderData[i]._id %>">Details</a> </td>
                                     <td>
-                                    <!-- <a href="/editVender/<%= venderData[i]._id %>"> <i class="fas fa-edit text-info"></i> </a> -->
+                                    <a href="/updateVendor/<%= venderData[i]._id %>"> <i class="fas fa-edit text-info"></i> </a>
                                     &nbsp;														
                                     <i class="fas fa-trash text-danger" onClick="removeDetails('removeVender','<%= venderData[i]._id %>')" style="cursor:pointer"></i>
                                   </td>

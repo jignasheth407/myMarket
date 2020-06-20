@@ -71,7 +71,8 @@ router.get('/login', function(req, res, next) {
 		req.flash('text_msg', 'You are logged in!');
 		res.redirect('/dashboard');		
 	}
-	else{
+	else
+	{
 		var notification_arr = {
 			'type': req.flash('type'),
 			'text_msg': req.flash('text_msg')
@@ -301,6 +302,82 @@ router.post('/add_vender', upload.single('icon'), async (req, res) => {
 	}
 });
 
+/* Edit vendor access role */
+router.get('/updateVendor/:postId', async (req, res, next) => {
+	var admin_name = req.session.admin_name;
+	var emailId = req.session.emailId;
+
+	if(emailId)
+	{
+		try
+		{
+			const update_vendor = await Vender.findOne({_id: req.params.postId});
+			console.log(update_vendor);
+			var notification_arr = {
+				'type': req.flash('type'),
+				'text_msg': req.flash('text_msg')
+			}
+			res.render('updateVendor', { title: 'Update Vendor', menuId: 'vender', msg: notification_arr, adminname:admin_name, update_vendor: update_vendor });
+		}
+		catch(error)
+		{
+			var notification_arr = {
+				'type': 'Warning',
+				'text_msg': error
+			}
+			res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'vender'});
+		}
+	}
+	else
+	{
+		var notification_arr = {
+			'type': 'Warning',
+			'text_msg': 'Your are not logged In!'
+		}
+		res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'vender'});
+	}
+});
+
+/* update Vendor Details functonaliy */
+router.post('/updateVendor/:postId', upload.single('image'), async (req, res) => {
+	var admin_name = req.session.admin_name;
+	var emailId = req.session.emailId;
+	var file = req.file;
+	if(emailId)
+	{
+		const update_vendor = await Vender.findOne({_id: req.params.postId});
+		console.log('-> POST:',update_vendor);
+		try
+		{
+			
+			
+			var logoUrl = clientUrl + "/" + file.filename;
+			console.log(logoUrl)
+			const post = await Vender.update({_id : req.params.postId},
+				{ $set : {icons_image: logoUrl, email: req.body.email, phone: req.body.phone, updated_at: new Date().getTime(), } 
+			});
+			req.flash('type', 'Success');
+			flash('text_msg', 'Update details are successful');
+    		res.redirect('/vender');
+		}
+		catch(error)
+		{
+			var notification_arr = {
+				'type': 'Error',
+				'text_msg': error
+			}
+			res.render('updateVendor', { title: 'Update Vendor', menuId: 'vender', msg: notification_arr, adminname: admin_name, update_vendor: update_vendor });
+		}
+	}
+	else
+	{
+		var notification_arr = {
+			'type': 'Warning',
+			'text_msg': 'Your are not logged In!'
+		}
+		res.render('login', { title: 'Login', menuId: 'Login', msg: notification_arr, redirecturl: 'vender'});
+	}
+});
 
 /* Delete Vender Schema responce */
 router.delete('/removeVender/:postId', async (req, res) => {

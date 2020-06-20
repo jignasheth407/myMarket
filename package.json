@@ -1,6 +1,7 @@
 {
   "name": "ezzy_server",
   "version": "1.0.0",
+  "description": "online local shopping platform",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -40,7 +41,6 @@
     "nodemailer": "^6.4.2",
     "rebuild": "^0.1.2",
     "req-flash": "0.0.3",
-    "toastr": "^2.1.4",
-    "wallet-address-validator": "^0.2.4"
+    "toastr": "^2.1.4"
   }
 }
