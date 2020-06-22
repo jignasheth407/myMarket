@@ -597,6 +597,61 @@ router.get("/customerList", async (req, res) => {
     }
 });
 
+/* ordeer list API function */
+router.get('/orderList', async (req, res) => {
+    let orderData = await Order.find({order_status: false}).sort({"updated_at": -1});
+    if(orderData)
+    {
+        var orders = [];
+        for (var i = 0; i < orderData.length; i++){
+            orders.push({
+                Order_id: orderData[i]._id,
+                Phone: orderData[i].phone,
+                Product_Name: orderData[i].product_name,
+                Quantity: orderData[i].quantity,
+                Price: orderData[i].price,
+                Address: orderData[i].address,
+            })
+        }
+        res.status(200).json({ success: true, orders});
+        return;
+    }
+    else
+    {
+        res.status(400).json({ success: false, orderData: 'no order found' });
+        return;
+    }
+});
+
+router.post('/deliveredOrder', async (req, res) => {
+    if (req.body.postId == undefined || req.body.postId == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "invalid access" });
+        return;
+    }
+    const result = await Order.findOne({ _id: req.body.postId });
+    if(result)
+    {
+        let result = await Order.findByIdAndRemove({ _id: req.body.postId },
+        function (err, success) {
+            if (err) {
+                console.log(err);
+                res.status(HttpStatus.NOT_FOUND).json({ err: err });
+            }
+            else
+            {
+                res.status(HttpStatus.OK).json({ success: true, msg: "order complete successfully"});
+                return;
+            }
+        });
+    }
+    else
+    {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "order not found" });
+        return;
+    }
+});
+
+
 
 /* placeOrder to vender API */
 router.post("/placeOrder", async (req, res) => {
@@ -662,9 +717,7 @@ router.post("/sendSMSLink", async (req, res) => {
     });
 });
 
-router.post('orderList', async (req, res) => {
 
-});
 
 /* Testing API */
 router.post("/TestaddProductUsingMulter", upload.single("productImage"), (req, res, next) => {

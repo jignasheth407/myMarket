@@ -14,10 +14,10 @@ const OrderSchema = new Schema({
         type: String,
         required: false,
     },
-    order_details: {
-        type: [String],
-        required: true
-    },
+    // order_details: {
+    //     type: [String],
+    //     required: true
+    // },
     product_name: {
         type: String, 
         required: false
