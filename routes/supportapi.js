@@ -560,6 +560,7 @@ router.post("/selectProduct", async (req, res) => {
             vender_id: req.body.vender_id,
             customer_id: req.body.customer_id,
             product_name: product[i].product_name,
+            order_status: false,
         });
     }
     Order.collection.insert(products, function (err, result) {
@@ -621,7 +622,6 @@ router.post("/placeOrder", async (req, res) => {
             product_name: orderData[i].product_name,
             quantity: orderData[i].quantity,
             price: orderData[i].price,
-            order_status: false
         });
     }
     /* convert Object to string */
@@ -662,7 +662,9 @@ router.post("/sendSMSLink", async (req, res) => {
     });
 });
 
-router.post('orderList', )
+router.post('orderList', async (req, res) => {
+
+});
 
 /* Testing API */
 router.post("/TestaddProductUsingMulter", upload.single("productImage"), (req, res, next) => {
