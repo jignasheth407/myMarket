@@ -28,7 +28,6 @@ var webEmail = process.env.WEBEmail;
 const clientUrl = process.env.clientUrl;
 
 const Admin = mongoose.model("Admin")
-const Users = mongoose.model("Users")
 const Vender = mongoose.model("Vender")
 const Order = mongoose.model("Order")
 const Items = mongoose.model("Items")

@@ -14,7 +14,6 @@ require("./mongo");
 
 /* require all Models */
 require("./model/admin");
-require("./model/users");
 require("./model/items");
 require("./model/category");
 require("./model/vender");
@@ -27,14 +26,14 @@ var supportRouter = require("./routes/supportapi");
 
 var app = express();
 
-app.use(
-  session({
-    secret: "somerandonstuffs",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { expires: 6000000 },
-  })
-);
+app.use(session(
+    {
+        secret: "somerandonstuffs",
+        resave: false,
+        saveUninitialized: false,
+        cookie: { expires: 6000000 },
+    }
+));
 
 app.use(flash());
 

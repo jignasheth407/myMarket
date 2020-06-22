@@ -14,6 +14,10 @@ const OrderSchema = new Schema({
         type: String,
         required: false,
     },
+    order_details: {
+        type: [String],
+        required: true
+    },
     product_name: {
         type: String, 
         required: false
@@ -33,6 +37,10 @@ const OrderSchema = new Schema({
     address: {
         type: String,
         required: false,
+    },
+    order_status: {
+        type: Boolean,
+        default: false
     },
     created_at: {
         type: String

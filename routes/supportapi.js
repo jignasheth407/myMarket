@@ -39,7 +39,7 @@ var storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 /* model */
-const Users = mongoose.model("Users");
+
 const itemsSchema = mongoose.model("Items");
 const categorySchema = mongoose.model("Category");
 const Vender = mongoose.model("Vender");
@@ -47,99 +47,6 @@ const Customer = mongoose.model("Customer");
 const Order = mongoose.model("Order");
 
 const clientUrl = process.env.clientUrl;
-
-/* user register API Functionality */
-router.post("/registerUser", async (req, res) => {
-    if(req.body.role == undefined || req.body.role == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "role cannot be blank" });
-        return;
-    }
-    if(req.body.username == undefined || req.body.username == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "username cannot be blank" });
-        return;
-    }
-    if(req.body.email == undefined || req.body.email == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "email cannot be blank" });
-        return;
-    }
-    if(req.body.password == undefined || req.body.password == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "password cannot be blank" });
-        return;
-    }
-    if (req.body.conf_password == undefined || req.body.conf_password == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "conf_password cannot be blank" });
-        return;
-    }
-    var email_ = req.body.email;
-    var pass = req.body.password;
-    var location = req.body.location;
-    var username = req.body.username;
-    var conf_pass = req.body.conf_password;
-
-    const checkUsername = await Users.find({ username: username });
-    if (checkUsername.length > 0) {
-        res.status(HttpStatus.NOT_FOUND).json({ status: false, msg: "this Username already exists!" });
-        return;
-    }
-    const checkEmail = await Users.find({ email: email_ });
-    if (checkEmail.length > 0) {
-        res.status(HttpStatus.NOT_FOUND).json({ status: false, msg: "this email already exists!" });
-        return;
-    }
-    if (username.length < 3) {
-        res.status(HttpStatus.NOT_FOUND).json({ status: false, msg: "Username must be greater than 2 letters" });
-        return;
-    }
-    if (username.length > 25) {
-        res.status(HttpStatus.NOT_FOUND).json({ status: false, msg: "Username must be less than 25 letters" });
-        return;
-    }
-    if (email_) {
-        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        var results = re.test(email_);
-        if (results == false) {
-            res.status(HttpStatus.NOT_FOUND).json({ status: false, msg: "Invalid email id" });
-            return;
-        }
-    }
-    if (pass == conf_pass) {
-        try {
-            let registerUser = new Users({
-                email: email_,
-                role: req.body.role,
-                logo_url: req.body.logo_url,
-                username: req.body.username,
-                password: req.body.password,
-                created_at: moment().format("ll"),
-            });
-            registerUser.save(function (error, created) {
-                console.log(error);
-                if (created) {
-                    res.json({
-                        status: true,
-                        msg: "user registered successfully.",
-                        data: created,
-                    });
-                    return;
-                }
-                else {
-                    res.json({ status: false, msg: "username already exists." });
-                    return;
-                }
-            });
-        }
-        catch (error) {
-            console.log(error);
-            res.json({ error_msg: "Something went wrong" });
-            return;
-        }
-    }
-    else
-    {
-        res.status(HttpStatus.NOT_FOUND).json({status: false, msg: "Password and confirm password must be same!!" });
-        return;
-    }
-});
 
 /* customer register API Functionality */
 router.post("/registerCustomer", async (req, res) => {
@@ -299,9 +206,8 @@ router.post("/login", async (req, res) => {
 
     var username = req.body.phone;
     var password = req.body.password;
-    //const userDetails = await Users.find({ $and : [ {"email": username }, {"password": password}]});
+    
     const userDetails = await Vender.find({ phone: username });
-
     var logintime = new Date().getTime();
 
     if (userDetails.length > 0) {
@@ -470,6 +376,7 @@ router.post("/deleteCategory", async (req, res) => {
         return;
     }
 });
+
 
 /* add Product API Functionality*/
 router.post("/addProduct", upload.single("productImage"), (req, res, next) => {
@@ -674,6 +581,7 @@ router.post("/selectProduct", async (req, res) => {
     });
 });
 
+
 /* customer List API */
 router.get("/customerList", async (req, res) => {
     let data = await Customer.find({});
@@ -713,6 +621,7 @@ router.post("/placeOrder", async (req, res) => {
             product_name: orderData[i].product_name,
             quantity: orderData[i].quantity,
             price: orderData[i].price,
+            order_status: false
         });
     }
     /* convert Object to string */
@@ -752,6 +661,8 @@ router.post("/sendSMSLink", async (req, res) => {
       console.log(error);
     });
 });
+
+router.post('orderList', )
 
 /* Testing API */
 router.post("/TestaddProductUsingMulter", upload.single("productImage"), (req, res, next) => {
