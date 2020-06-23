@@ -502,6 +502,39 @@ router.get("/productList", async (req, res) => {
     }
 });
 
+/* ProductListById API  Functionality */
+router.post('/productListById', async (req, res, next) => {
+    if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({success: false,  error_msg: "invalid access" });
+        return;
+    }
+    vender_id = req.body.vender_id;
+    let productData = await itemsSchema.find({vender_id: vender_id}).sort({"updated_at": -1});
+    if (productData != undefined && productData.length > 0) {
+        
+        var products = [];
+        for (var i = 0; i < productData.length; i++){
+            products.push({
+                product_id: productData[i]._id,
+                vender_id: productData[i].vender_id,
+                category_id: productData[i].category_id,
+                category_name: productData[i].category_name,
+                product_name: productData[i].product_name,
+                price: productData[i].price,
+                product_image: productData[i].base64_image,
+                created_at: productData[i].created_at,
+            })
+        }
+        res.status(200).json({ success: true, products});
+        return;
+    }
+    else
+    {
+        res.status(400).json({ success: false, orderData: 'no produc found for this vender' });
+        return;
+    }
+});
+
 /* Delete Item Details API Functionality */
 router.post("/deleteProduct", async (req, res) => {
     if (req.body.postId == undefined || req.body.postId == null) {
