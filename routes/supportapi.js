@@ -530,7 +530,7 @@ router.post('/productListById', async (req, res, next) => {
     }
     else
     {
-        res.status(400).json({ success: false, orderData: 'no produc found for this vender' });
+        res.status(400).json({ success: false, msg: 'no produc found for this vender' });
         return;
     }
 });
@@ -651,7 +651,7 @@ router.get('/orderList', async (req, res) => {
     }
     else
     {
-        res.status(400).json({ success: false, orderData: 'no order found' });
+        res.status(400).json({ success: false, msg: 'no order found' });
         return;
     }
 });
