@@ -19,6 +19,7 @@ require("./model/category");
 require("./model/vender");
 require("./model/customer");
 require("./model/order");
+require("./model/order_detail");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");

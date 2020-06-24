@@ -10,6 +10,10 @@ const OrderSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    order_no: {
+        type: String, 
+        required: false
+    },
     category: {
         type: String,
         required: false,
