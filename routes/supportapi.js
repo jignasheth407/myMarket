@@ -123,6 +123,7 @@ router.post("/registerCustomer", async (req, res) => {
                     msg: "customer registered successfully",
                     customerInfo: {
                         _id: result._id,
+                        vender_id: result.vender_id,
                         name: result.customer_name,
                         phone: result.phone,
                         city: result.city,
@@ -811,20 +812,59 @@ router.post("/sendSMSLink", async (req, res) => {
     });
 });
 
-
-/* customer List API */
-router.get("/customerList", async (req, res) => {
-    let data = await Customer.find({});
-    if (data != undefined && data.length > 0) {
-        res.status(HttpStatus.OK).json({ success: true, customer_list: data });
+router.post('/customerListById', async (req, res) => {
+    if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(400).json({ error_msg: "vender_id not found." });
         return;
+    }
+    var vender_id = req.body.vender_id;
+    const vender = await Vender.findOne({'_id': vender_id});
+    if(vender)
+    {
+        const custDetail = await Customer.find({'vender_id': vender_id});
+        if(custDetail != undefined && custDetail.length > 0)
+        {
+            var customers = [];
+            for (var i = 0; i < custDetail.length; i++)
+            {
+                customers.push({
+                    customer_id: custDetail[i]._id,
+                    customer_name: custDetail[i].customer_name,
+                    phone: custDetail[i].phone,
+                    city: custDetail[i].city,
+                    address: custDetail[i].address,
+                });
+            }
+            res.status(200).json({ success: true, customers});
+            return;
+        }
+        else
+        {
+            res.status(400).json({ success: false, msg: 'no customer found' });
+            return;
+        }
     }
     else
     {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "no Customer found.", data });
+        res.status(400).json({ success: false, msg: 'vender not found'});
         return;
     }
 });
+
+
+/* customer List API */
+// router.get("/customerList", async (req, res) => {
+//     let data = await Customer.find({});
+//     if (data != undefined && data.length > 0) {
+//         res.status(HttpStatus.OK).json({ success: true, customer_list: data });
+//         return;
+//     }
+//     else
+//     {
+//         res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "no Customer found.", data });
+//         return;
+//     }
+// });
 
 
 
