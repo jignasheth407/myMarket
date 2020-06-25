@@ -50,6 +50,10 @@ const clientUrl = process.env.clientUrl;
 
 /* customer register API Functionality */
 router.post("/registerCustomer", async (req, res) => {
+    if (req.body.vender_id == undefined || req.body.vender_id == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id cannot be blank" });
+        return;
+    }
     if (req.body.customer_name == undefined || req.body.customer_name == null) {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "customer_name cannot be blank" });
         return;
@@ -675,7 +679,7 @@ router.post("/selectProduct", async (req, res) => {
     // });
 });
 
-router.post('/orderList', async (req, res) => {
+router.post('/orderListById', async (req, res) => {
     if (req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(400).json({ error_msg: "vender_id not found." });
         return;
@@ -684,12 +688,11 @@ router.post('/orderList', async (req, res) => {
 
     let odrList = await orderDetail.find({vender_id: vender_id}).sort({"created_at": -1});
     console.log(odrList)
-
-})
+});
 
 
 /* ordeer list API function */
-router.get('/orderListTest', async (req, res) => {
+router.get('/orderList', async (req, res) => {
     let orderData = await Order.find({order_status: false}).sort({"updated_at": -1});
     if(orderData)
     {
