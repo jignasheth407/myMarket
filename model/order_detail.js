@@ -34,4 +34,5 @@ const order_detailSchema = new Schema({
     }
 });
 
+
 module.exports = mongoose.model('order_detail', order_detailSchema)
