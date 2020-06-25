@@ -595,17 +595,20 @@ router.post("/selectProduct", async (req, res) => {
         res.status(400).json({ error_msg: "phone_number not found." });
         return;
     }
-    var phone = req.body.phone_number
+
+    var orderNo = generateId();
     var venderId = req.body.vender_id
+    var phone = req.body.phone_number
     var customerId = req.body.customer_id
     var clientName = req.body.customer_name
-    var orderNo = generateId();
+    var amount = req.body.total_amount;
 
     let orderIdDetail = new orderDetail({
         vender_id: venderId,
         customer_id: customerId,
         order_no: orderNo,
         phone: phone,
+        amount: amount,
         client_name: clientName,
         created_at: moment().format("ll"),
     });
@@ -645,75 +648,74 @@ router.post("/selectProduct", async (req, res) => {
             return;
         }
     });
-    // var products = [];
-    // var product = req.body.select_product;
-    // for (var i = 0; i < product.length; i++)
-    // {
-    //     products.push({
-    //         price: product[i].price,
-    //         address: req.body.address,
-    //         phone: req.body.phone_number,
-    //         quantity: product[i].quantity,
-    //         category: product[i].category,
-    //         vender_id: req.body.vender_id,
-    //         customer_id: req.body.customer_id,
-    //         product_name: product[i].product_name,
-    //         order_status: false,
-    //     });
-    // }
-    // Order.collection.insert(products, function (err, result) {
-    //     if (err) {
-    //         console.error(err);
-    //         res.status(400).json({ success: false, msg: "product not select" });
-    //         return;
-    //     }
-    //     else
-    //     {
-    //         res.status(HttpStatus.CREATED).json({
-    //             success: true, 
-    //             msg: "your order has been placed successfully",
-    //             Count: result.insertedCount,
-    //             Order: result.ops,
-    //         });
-    //         return;
-    //     }
-    // });
 });
 
-router.post('/orderListById', async (req, res) => {
+/* Get orderId List By Vender API functionaliy. */
+router.post('/orderIdListByVender', async (req, res) => {
     if (req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(400).json({ error_msg: "vender_id not found." });
         return;
     }
     var vender_id = req.body.vender_id;
-
-    let odrList = await orderDetail.find({vender_id: vender_id}).sort({"created_at": -1});
-    console.log(odrList)
+    const vender = await Vender.findOne({'_id': vender_id});
+    if(vender){
+        let order = await orderDetail.find({vender_id: vender_id}).sort({"created_at": -1});
+        if(order != undefined && Order.length > 0){
+            console.log('inside if');
+            var ordersNo = [];
+            for (var i = 0; i < order.length; i++){
+                ordersNo.push({
+                    Order_no: order[i].order_no,
+                    Client_name: order[i].client_name,
+                    Phone_no: order[i].phone,
+                    amount: order[i].amount,
+                })
+            }
+            res.status(200).json({ success: true, ordersNo});
+            return;
+        }
+        else
+        {
+            res.status(400).json({ success: false, msg: 'no order found'});
+            return;
+        }
+    }
+    else
+    {
+        res.status(400).json({ success: false, msg: 'vender not found'});
+        return;
+    }    
 });
 
-
 /* ordeer list API function */
-router.get('/orderList', async (req, res) => {
-    let orderData = await Order.find({order_status: false}).sort({"updated_at": -1});
-    if(orderData)
+router.post('/orderDetailsByNumber', async (req, res) => {
+    if (req.body.phone_no == undefined || req.body.phone_no == null) {
+        res.status(400).json({ error_msg: "phone_no not found." });
+        return;
+    }
+    if (req.body.order_no == undefined || req.body.order_no == null) {
+        res.status(400).json({ error_msg: "order_no not found." });
+        return;
+    }
+    let phone = req.body.phone_no;
+    let order_no = req.body.order_no;
+    var order = await Order.find({ $and : [ {phone: phone }, {order_no: order_no}, {order_status: false} ]}).sort({"created_at": -1});
+    if(order)
     {
-        var orders = [];
-        for (var i = 0; i < orderData.length; i++){
-            orders.push({
-                Order_id: orderData[i]._id,
-                Phone: orderData[i].phone,
-                Product_Name: orderData[i].product_name,
-                Quantity: orderData[i].quantity,
-                Price: orderData[i].price,
-                Address: orderData[i].address,
-            })
+        var orderDetail = [];
+        for (var i = 0; i < order.length; i++){
+            orderDetail.push({
+                Product_name: order[i].product_name,
+                Quantity: order[i].quantity,
+                Price: order[i].price,
+            });
         }
-        res.status(200).json({ success: true, orders});
+        res.status(200).json({ success: true, orderDetail});
         return;
     }
     else
     {
-        res.status(400).json({ success: false, msg: 'no order found' });
+        res.status(400).json({ success: false, msg: 'No Orders Detail Found' });
         return;
     }
 });
@@ -745,8 +747,6 @@ router.post('/deliveredOrder', async (req, res) => {
         return;
     }
 });
-
-
 
 /* placeOrder to vender API */
 router.post("/placeOrder", async (req, res) => {

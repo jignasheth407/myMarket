@@ -22,6 +22,10 @@ const order_detailSchema = new Schema({
         type: String, 
         required: false
     },
+    amount: {
+        type: String, 
+        required: false
+    },
     created_at: {
         type: String,
     },
