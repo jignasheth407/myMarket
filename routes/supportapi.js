@@ -668,7 +668,7 @@ router.post('/orderIdListByVender', async (req, res) => {
                     Order_no: order[i].order_no,
                     Client_name: order[i].client_name,
                     Phone_no: order[i].phone,
-                    amount: order[i].amount,
+                    Total_amount: order[i].amount,
                 })
             }
             res.status(200).json({ success: true, ordersNo});
@@ -708,6 +708,8 @@ router.post('/orderDetailsByNumber', async (req, res) => {
                 Product_name: order[i].product_name,
                 Quantity: order[i].quantity,
                 Price: order[i].price,
+                order_no: order[i].order_no,
+                phone_no: order[i].phone,
             });
         }
         res.status(200).json({ success: true, orderDetail});
@@ -720,35 +722,28 @@ router.post('/orderDetailsByNumber', async (req, res) => {
     }
 });
 
+/* deliveredOrder API */
 router.post('/deliveredOrder', async (req, res) => {
-    if (req.body.postId == undefined || req.body.postId == null) {
-        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "invalid access" });
+    if (req.body.order_no == undefined || req.body.order_no == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "order_no not access" });
         return;
     }
-    const result = await Order.findOne({ _id: req.body.postId });
-    if(result)
-    {
-        let result = await Order.findByIdAndRemove({ _id: req.body.postId },
-        function (err, success) {
-            if (err) {
-                console.log(err);
-                res.status(HttpStatus.NOT_FOUND).json({ err: err });
-            }
-            else
-            {
-                res.status(HttpStatus.OK).json({ success: true, msg: "order complete successfully"});
-                return;
-            }
-        });
-    }
-    else
-    {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, msg: "order not found" });
+    if (req.body.phone_no == undefined || req.body.phone_no == null) {
+        res.status(HttpStatus.NOT_FOUND).json({ error_msg: "phone_no not access" });
         return;
     }
+    let result = await orderDetail.deleteMany({ $and : [{order_no: req.body.order_no }, {phone: req.body.phone_no}]})
+    let resultsData = await Order.deleteMany({ $and : [{order_no: req.body.order_no }, {phone: req.body.phone_no}]}, 
+    function (err, success) {
+        if(!err){
+            res.status(HttpStatus.OK).json({ success: true, msg: "order complete successfully"});
+            return;
+        }
+    })
 });
 
-/* placeOrder to vender API */
+
+/* placeOrder  & send sms to vender API */
 router.post("/placeOrder", async (req, res) => {
     if (req.body.vender_id == undefined || req.body.vender_id == null) {
         res.status(HttpStatus.NOT_FOUND).json({ error_msg: "vender_id can not be blank" });
